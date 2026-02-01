@@ -14,7 +14,6 @@ const productSchema = mongoose.Schema(
             type: String,
             required: true,
         },
-
         name: {
             type: String,
             required: true,
@@ -26,14 +25,7 @@ const productSchema = mongoose.Schema(
             type: Number,
             required: true,
         },
-        stock: {
-            type: Number,
-            required: true,
-        },
-        category: {
-            type: String,
-            required: true,
-        },
+                
         img: {
             type: String,
             required: true,
@@ -43,11 +35,7 @@ const productSchema = mongoose.Schema(
             required: true,
             unique: true,
         },
-        user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            required: true,
-        },
+       
     },
     {
         timestamps: true,
