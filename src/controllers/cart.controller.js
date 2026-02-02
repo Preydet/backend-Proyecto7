@@ -4,7 +4,8 @@ const User = require('../models/User')
 const stripe = require('stripe')(process.env.STRIPE_KEY);
 
 exports.createCheckoutSession = async (req, res) => {
-    const userID = req.user.id;
+    try {
+    const userId = req.user.id;
     const foundUser = await User.findOne({ _id: userId });
     const foundCart = await Cart.findById(foundUser.cart).populate({
         path: 'products',    
@@ -17,6 +18,8 @@ exports.createCheckoutSession = async (req, res) => {
         }
     })
 
+    console.log('line items', line_items);
+
     const session = await stripe.checkout.sessions.create({
         line_items,
         mode: 'payment',
@@ -24,12 +27,20 @@ exports.createCheckoutSession = async (req, res) => {
         cancel_url: `${process.env.STRIPE_CANCEL_URL}`,
         customer_email: foundUser.email,
     })
-
+    
     res.json({
         session_url: session.url,
         session
-    })
-}
+    });
+    }   catch (error) {
+        console.error('Error Stripe:', error);
+        res.status(400).json({
+            message: 'Hubo un error al crear la sesión de stripe',
+            error: error.raw ? error.raw.message : error.message
+        })
+        }
+    }
+
 
 exports.getCart = async (req, res) => {
     const userId = req.user.id;
@@ -42,8 +53,8 @@ exports.getCart = async (req, res) => {
 }
 
 exports.editCart = async (req, res) => {
-    const userID = req.user.id;
-    const foundUser = await User.findOne({ _id: userID });
+    const userId = req.user.id;
+    const foundUser = await User.findOne({ _id: userId });
     const { products } = req.body;
     const updatedCart = await Cart.findByIdAndUpdate(
         foundUser.cart,
@@ -55,5 +66,6 @@ exports.editCart = async (req, res) => {
         cart: updatedCart
     })
 }
+
 
 

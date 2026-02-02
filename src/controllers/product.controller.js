@@ -4,7 +4,7 @@ const stripe = require('stripe')(process.env.STRIPE_KEY);
 exports.getAllProducts = async (req, res) => {
     try {
         const products = await Product.find();
-        res.status(200).json(products);
+        res.status(200).json({ products });
     } catch (error) {
         res.status(500).json({
              message: 'Hubo un error al obtener los productos',
@@ -34,7 +34,7 @@ exports.createProduct = async (req, res) => {
 
         const newProduct = await Product.create({
             idProd: product.id,
-            priceId: stripePrice.id,
+            priceID: stripePrice.id,
             name,
             price,
             description,
