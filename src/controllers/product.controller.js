@@ -3,7 +3,12 @@ const stripe = require('stripe')(process.env.STRIPE_KEY);
 
 exports.getAllProducts = async (req, res) => {
     try {
-        const products = await Product.find();
+        const { category } = req.query;
+
+        const products = category
+            ? await Product.find({ categories: category})
+            : await Product.find();
+
         res.status(200).json({ products });
     } catch (error) {
         res.status(500).json({
@@ -15,14 +20,15 @@ exports.getAllProducts = async (req, res) => {
 
 exports.createProduct = async (req, res) => {
     try {
-        const { name, price, description, img, currency, slug } = req.body;
+        const { name, price, description, img, currency, slug, categories } = req.body;
         const product = await stripe.products.create({
             name,
             description,
             images: [img],
             metadata: {
                 productDescription: description,
-                slug
+                slug,
+                categories
             }
         });
     
@@ -40,7 +46,8 @@ exports.createProduct = async (req, res) => {
             description,
             img,
             currency,
-            slug
+            slug,
+            categories
         });
 
         if (!newProduct) { return res.status(400).json({ 
@@ -54,11 +61,26 @@ exports.createProduct = async (req, res) => {
     }
 }
 
+    exports.getCategories = async (req, res) =>{
+        try{
+            const categories = await Product.distinct('categories');
+            res.status(200).json({ categories});
+        } catch (error) {
+            console.error('Error al obtener categorías:', error);
+            res.status(500).json({
+                message: 'Hubo un error al obtener las categorias',
+                error: error.message
+            });
+        }
+    };
+
     exports.updateProductById = async (req, res) => {
+        const {name, price, description, img, categories} =req.body
+        
         try {
                 const updateProduct = await Product.findByIdAndUpdate(
                 req.params.id,
-                req.body,
+                { name, price, description, img, categories },
                 { new: true, runValidators: true }
             )
             if (!updateProduct) { return res.status(404).json({ 
