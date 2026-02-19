@@ -14,6 +14,7 @@ const whitelist = [
     'http://localhost:3000',
     'http://localhost:5173',
     'http://localhost:5174',
+    'https://frontend-proyecto-7.onrender.com',
 ];
 
 const corsOptions = {
